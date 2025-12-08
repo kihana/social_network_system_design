@@ -1,100 +1,129 @@
-# Социальная Сеть для Путешественников
+# Social Network for Travellers
 
-## Функциональные Требования
-- публикация постов о путешествиях. Каждый пост:  
-  - содержит фотографии
-  - содержит описание
-  - связан с конкретным местом
-- оценка и комментирование постов
-- подписка на других путешественников, чтобы следить за их активностью
-- поиск популярных мест для путешествий и просмотр публикаций, связанных с этими местами
-- просмотр ленты других путешественников и ленты пользователя, основанной на подписках в обратном хронологическом порядке
+## Functional Requirements
+- publish travel posts. Each post:  
+  - contains photos
+  - contains text
+  - linked to location
+- rate and comment on posts
+- follow other travellers to keep track of their activity
+- search for popular locations and read posts linked to those locations
+- view other travellers' feeds and the user's feed based on subscriptions, in reverse chronological order
 
-## Нефункциональные Требования
+## Non‑Functional Requirements
 - 10 000 000 DAU
-- аудитория стран СНГ
-- данные хранятся всегда
-- активность пользователей:
-  - в среднем пользователи публикуют 20 (максимум 5 постов за каждое путешествие, в среднем 4 путешествия в год) постов в год или 0.05 постов в день 
-  - в среднем просмотр 15 постов в день
-  - 10% оценок и 1% комментариев от просмотра постов
-  - в среднем делают по 5 запросов поиска мест
-  - 3 раза в день будет входить в сеть, соответственно 3 раза в день надо сформировать ленту
-  - в среднем открывают 3 ленты других пользователей
-  - в среднем делается по 3 подписки в день
-- лимиты:
-  - максимум 30 фото на пост
-  - размер фото максимум 3МБ
-  - максимум 5000 символов на пост
-  - публиковать не более 50 постов в день
-  - максимум 500 комментариев в день
-  - максимум 1000 оценок в день
-  - максимум 500 подписок в день
-- сезонность присутствует: летний (июнь-август), зимний (декабрь-январь)
-- тайминги:
-  - публикация поста - 3 секунды
-  - оценка и комментарий - 1 секунда
-  - отобржение результатов поиска - 2 
-  - показать первую страницу ленты - 2 секунды
-  - подписка - 1 секунды
-- поддержка мобильных телефонов и браузеров
+- audience: CIS countries
+- data is stored permanently
+- user activity (average):
+  - users publish 20 posts per year (max 5 posts per trip; average 4 trips per year), i.e. 0.05 posts per day 
+  - users view 15 posts per day
+  - 10% of post views result in a rating and 5% in a comment
+  - 5 location search requests per user per day
+  - users log in 3 times per day; therefore the user feed should be generated 3 times per day
+  - users open 3 other users' feeds
+  - users make 3 subscriptions per day
+- limits:
+  - up to 30 photos per post
+  - photo size up to 3 MB
+  - up to 5000 characters per post
+  - no more than 50 posts per user per day
+  - up to 500 comments per user per day
+  - up to 1000 ratings per user per day
+  - up to 500 subscriptions per user per day
+  - 20 items per feed page
+- seasons: summer (June–August), winter (December–January), load and traffic x 3 
+- timings:
+  - publish post - 3 seconds
+  - rate and comment - 0.5 second
+  - show search reslts - 2 seconds 
+  - show first page of feed - 2 seconds
+  - subscribe/unsubscribe - 0.5 second
+- supported platforms:
+  - mobile app
+  - web browsers
 
-## Нагрузка
-- RPS (чтение) ~ 3000
-  - RPS (просмотр постов - чтение) - 10 000 000 * 15 / 86 400 = 1736
-  - RPS (поиск мест - чтение) - 10 000 000 * 5 / 86 400 = 579
-  - RPS (формирование своей ленты - чтение) - 10 000 000 * 3 / 86 400 = 347
-  - RPS (формирование чужой ленты - чтение) - 10 000 000 * 3 / 86 400 = 347
+## Load
+- RPS (read) ~ 3000
+  - post views (read): 10 000 000 * 15 / 86 400 = 1736
+  - location search (read): 10 000 000 * 5 / 86 400 = 579
+  - own feed generation (read): 10 000 000 * 3 / 86 400 = 347
+  - other users' feeds (read): 10 000 000 * 3 / 86 400 = 347
 
-- RPS (запись) ~ 545
-  - RPS (публикация постов - запись) - 10 000 000 * 0.05 / 86 400 = 6
-  - RPS (оценка постов - запись) - 10 000 000 * (15 * 10 / 100) / 86 400 = 174
-  - RPS (комментирование постов - запись) - 10 000 000 * (15 * 1 / 100) / 86 400 = 17
-  - RPS (подписка - запись) - 10 000 000 * 3 / 86 400 = 347
+- RPS (write) ~ 545
+  - post publish (write): 10 000 000 * 0.05 / 86 400 = 6
+  - post rating (write): 10 000 000 * (15 * 10 / 100) / 86 400 = 174
+  - post comment (write): 10 000 000 * (15 * 5 / 100) / 86 400 ~ 87
+  - subscription (write): 10 000 000 * 3 / 86 400 = 347
 
-## Трафик
-  - Наброски структуры данных:
-      - Оценка: = 32 B
-      - id поста - 8 B
-      - id пользователя - 8 B
-      - оценка: 1-5 - 8 B
-      - время - 8 B
+## Traffic
+  - Data structure skeletons:
+    - Rating:       ~ 32B
+      - post_id     - 8B
+      - user_id     - 8B
+      - value (1-5) - 8B
+      - created_at  - 8B
     
-    - Комментарий: ~ 1 KB
-      - id комментатора - 8 B
-      - текст ~ 1000 B
-      - время - 8 B
+    - Comment:            ~ 2KB
+      - comment_id        - 8B
+      - post_id           - 8B
+      - user_id           - 8B
+      - text              - 2000B
+      - comment_reply_id  - 8B
+      - created_at        - 8B
 
-    - Подписка: = 20 B
-      - id подписчика - 8 B
-      - id на кого подписываются - 8 B
-      - действие: подписаться/отписаться - 1 B
+    - Subscription:               ~ 25B
+      - follower_id               - 8B
+      - following_id              - 8B
+      - action (follow/unfollow)  - 1B
+      - created_at                - 8B
 
-    - Пост: ~ 92 MB
-      - 30 фото * 3МБ = 90 МB
-      - 5000 символов = 5 КB
-      - метаинформация (id, пользователь, дата публикации, локация,...) = 1 KB
-      - 1000 комментариев ~ 1 MB
-      - средняя оценка = 32 B
+    - Media:            ~ 1.5KB
+      - media_id        - 8B
+      - post_id         - 8B
+      - user_id         - 8B
+      - object_key (S3) - 1KB
+    - Post media (S3): up to 90 MB per post (30 photos × 3 MB)
+    - Thumbnail media (S3): ~ 300 KB (thumbnail)
 
-    - Тизер поста: ~ 500 KB
-      - метаинформация (id, пользователь, дата публикации, локация,...) = 1 KB
-      - текстовое содержимое 500 символов ~ 500 B
-      - фото (сжатое) ~ 400 KB
-      - средняя оценка = 32 B
+    - Location:             ~ 2.5KB
+      - location_id         - 8B
+      - name                - 500B
+      - address             - 500B
+      - description         - 500B
+      - thumbnail_url (S3)  - 1KB
+      - coordinates         - 16B
 
-    - Локация: ~ 10 MB
-      - метаинформация (id, название, адрес, координаты,...) ~ 1KB
-      - 20 тизеров постов по 500 KB ~ 20 * 500 KB = 10 000 KB ~ 9.8 MB
+    - Post (record):              ~ 7.5KB
+      - post_id                   - 8B
+      - user_id                   - 8B
+      - title                     - 500B
+      - text                      - 5000B
+      - location_id               - 8B
+      - teaser_text               - 500B
+      - teaser_thumbnail_url (S3) - 1KB
+      - avg_rate                  - 8B
+      - comment_count             - 8b
+      - created_at                - 8B
+      - updated_at                - 8B
+      - media_ids                 - 8B * up to 30 = 240B
+      
+- RPS (read) ~ 15.3 MB/s + 28.3 MB/s + 51 MB/s + 51 MB/s ~ 145.6 MB/s
+  - post load (read): 1736 * (7.5KB + 1.5KB) = 15624 KB/s = 15.3 MB/s
+  - search location (read): 579 * 2.5KB * 20 (count) = 28950 KB/s = 28.3 MB/s
+  - own feed (read): 347 * 20 (count) * 7.5KB = 52050 KB/s = 51 MB/s
+  - user feed (read): same as above = 51 MB/s
+  
+- RPS (media read) ~ 152.6 GB/s + 3.4 GB/s + 1.9 GB/s + 1.9 GB/s ~ 159.8 GB/s
+  - post media reads: 1736 * 90MB = 156240 MB/s = 152.6 GB/s
+  - search location media: 579 * 300KB * 20 (count) = 3474000 KB/s = 3.4 GB/s
+  - own feed media: 347 * 300KB * 20 (count) = 2082000 KB/s = 1.9 GB/s
+  - user feed media: 1.9 GB/s
+  
+- RPS (write) ~ 54 KB/s + 5.4 KB/s + 174 KB/s + 8.5 KB/s ~ 242 KB/s
+  - post publish (write): 6 * (7.5KB + 1.5KB) = 54 KB/s
+  - post rating (write): 174 * 32B = 5568 B/s = 5.4 KB/s
+  - post comment (write): 87 * 2KB = 174 KB/s
+  - subscription (write): 347 * 25B = 8675 B/s = 8.5 KB/s
 
-- RPS (чтение) ~ 166 GB/s
-  - RPS (просмотр поста - чтение) - 1736 * 92 MB = 159 712 MB/s = 156 GB/s
-  - RPS (поиск мест - чтение) - 579 * 10 MB = 5790 MB/s = 5.6 GB/s
-  - RPS (формирование своей ленты - чтение) - 347 * 20 (количество тезеров в ленте) * 500 KB = 3 470 000 KB = 3.3 GB/s
-  - RPS (формирование чужой ленты - чтение) - --//-- = 3.3 GB/s
-
-- RPS (запись) ~ 550 MB/s
-  - RPS (публикация поста - запись) - 6 * 91 MB = 546 MB/s
-  - RPS (оценка постов - запись) - 174 * 32 B = 5 568 B/s = 5.4 KB/s
-  - RPS (комментирование постов - запись) - 17 * 1 KB/s = 17 KB/s
-  - RPS (подписка - запись) - 347 * 20 B = 6 940 B/s = 6.8 KB/s
+- RPS (media write) ~ 540 MB/s
+  - post publish media (upload): 6 * 90MB = 540 MB/s
