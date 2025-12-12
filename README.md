@@ -35,7 +35,7 @@
 - timings:
   - publish post - 3 seconds
   - rate and comment - 0.5 second
-  - show search reslts - 2 seconds 
+  - show search results - 2 seconds 
   - show first page of feed - 2 seconds
   - subscribe/unsubscribe - 0.5 second
 - supported platforms:
@@ -60,7 +60,7 @@
     - Rating:       ~ 32B
       - post_id     - 8B
       - user_id     - 8B
-      - value (1-5) - 8B
+      - value       - 8B
       - created_at  - 8B
     
     - Comment:            ~ 2KB
@@ -102,7 +102,7 @@
       - teaser_text               - 500B
       - teaser_thumbnail_url (S3) - 1KB
       - avg_rate                  - 8B
-      - comment_count             - 8b
+      - comment_count             - 8B
       - created_at                - 8B
       - updated_at                - 8B
       - media_ids                 - 8B * up to 30 = 240B
