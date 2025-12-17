@@ -23,8 +23,8 @@
   - users open 3 other users' feeds
   - users make 3 subscriptions per day
 - limits:
-  - up to 30 photos per post
-  - photo size up to 3 MB
+  - up to 15 photos per post
+  - photo size up to 1 MB
   - up to 5000 characters per post
   - no more than 50 posts per user per day
   - up to 500 comments per user per day
@@ -85,7 +85,7 @@
       - status          - 8B
       - checksum        - 32B
       - created_at      - 8B
-    - Post media (S3): up to 90 MB per post (30 photos × 3 MB)
+    - Post media (S3): up to 15 MB per post (15 photos × 1 MB)
     - Thumbnail media (S3): ~ 300 KB (thumbnail)
 
     - Location:             ~ 2.5KB
@@ -118,8 +118,8 @@
   - own feed (read): 347 * 20 (count) * 7KB = 48580 KB/s = 47.5 MB/s
   - user feed (read): same as above = 51 MB/s
   
-- RPS (media read) ~ 152.6 GB/s + 3.4 GB/s + 1.9 GB/s + 1.9 GB/s ~ 159.8 GB/s
-  - post media reads: 1736 * 90MB = 156240 MB/s = 152.6 GB/s
+- RPS (media read) ~ 25.5 GB/s + 3.4 GB/s + 1.9 GB/s + 1.9 GB/s ~ 33 GB/s
+  - post media reads: 1736 * 15MB = 26040 MB/s = 25.5 GB/s
   - search location media: 579 * 300KB * 20 (count) = 3474000 KB/s = 3.4 GB/s
   - own feed media: 347 * 300KB * 20 (count) = 2082000 KB/s = 1.9 GB/s
   - user feed media: 1.9 GB/s
@@ -130,12 +130,12 @@
   - post comment (write): 87 * 2KB = 174 KB/s
   - subscription (write): 347 * 25B = 8675 B/s = 8.5 KB/s
 
-- RPS (media write) ~ 540 MB/s
-  - post publish media (upload): 6 * 90MB = 540 MB/s
+- RPS (media write) ~ 90 MB/s
+  - post publish media (upload): 6 * 15MB = 90 MB/s
 
 ## Capacity
 242 KB/s * 365 * 86400 ~ 7.5 TB per year
-540 MB/s * 365 * 86400 ~ 16 PB per year (media)
+90 MB/s * 365 * 86400 ~ 16 PB per year (media)
 
 ### HDD
 IOPS = 3000 + 545 = 3545 => 3545 / 100 ~ 36
@@ -154,3 +154,8 @@ Throughput = (145.6 MB/s + 242 KB/s) / 500 MB/s ~ 1
 ### S3
 Throughput (media) = (159.8 GB/s + 540 MB/s) / ? ~ ?
 
+## Data storage
+PostgresSQL
+- async master-slave replication with factor 2
+- 2 disks per hosts = 18 shards * 2 (replica) = 36 hosts by 2 disks
+- key based way by post_id 
