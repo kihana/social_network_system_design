@@ -48,18 +48,18 @@ paths:
           $ref: '#/components/responses/Error'
         '500':
           $ref: '#/components/responses/Error'
-  /posts/{postId}/rate:
+  /posts/{postId}/like:
     post:
       tags:
         - Post
-      summary: rate post
-      operationId: ratePost
-      description: Sets rate for post
+      summary: like post
+      operationId: likePost
+      description: Likes for post
       parameters:
         - $ref: '#/components/parameters/PostId'
       responses: 
         '200':
-          $ref: '#/components/responses/Rate'
+          $ref: '#/components/responses/Like'
         '400':
           $ref: '#/components/responses/Error'
         '500':
@@ -67,14 +67,14 @@ paths:
     delete:
       tags:
         - Post
-      summary: delete rate from post
-      operationId: deleteRate
-      description: Deletes rate from post
+      summary: delete like from post
+      operationId: deleteLike
+      description: Deletes like from post
       parameters:
         - $ref: '#/components/parameters/PostId'
       responses: 
         '200':
-          $ref: '#/components/responses/Rate'
+          $ref: '#/components/responses/Like'
         '400':
           $ref: '#/components/responses/Error'
         '500':
@@ -261,7 +261,7 @@ components:
         post_count:
           type: integer
           format: int64
-    Rate:
+    Like:
       type: object
       properties:
         value:
@@ -295,8 +295,8 @@ components:
             $ref: '#/components/schemas/User'
           location:
             $ref: '#/components/schemas/Location'
-          rate:
-            $ref: '#/components/schemas/Rate'
+          like:
+            $ref: '#/components/schemas/Like'
           media:
             type: array
             items:
@@ -376,8 +376,8 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/Post'
-    Rate:
-      description: Post rate
+    Like:
+      description: Post like
       content:
         application/json:
           schema:
