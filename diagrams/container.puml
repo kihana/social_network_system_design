@@ -1,0 +1,60 @@
+@startuml C4_Container_Social_Network_for_Travelers
+
+!NEW_C4_STYLE=1
+
+!include  https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+SHOW_PERSON_OUTLINE()
+
+Person(user, "Traveler", "Create and read post, comment post, like post, search popular locations, subscribe to other travelers, read feeds", $sprite="person")
+
+System_Boundary(socialNetworkBoundary, "Social Network for Travelers") {
+    Container(webApp, "Web Application", "React", "Allows travelers to interact with the social network via web browsers.")
+    Container(mobileApp, "Mobile Application", "Flutter", "Allows travelers to interact with the social network via mobile devices.")
+
+    Container(loadBalancer, "Load Balancer", "AWS ELB", "Distributes incoming traffic across multiple clusters.")
+    Container(apiGateway, "API Gateway", "Nginx", "Routes requests from web and mobile applications to appropriate backend services.")
+
+    Container(travelersApi, "Travelers API", "Go", "Handles requests from web and mobile applications, processes business logic.")
+    Container(mediaService, "Media Service", "Go", "Handles requests from travelers API related to media processing and generating presigned URLs.")
+    Container(feedService, "Feed Service", "Go", "Handles requests from web and mobile applications related to generating feeds.")
+
+    ContainerDb(travelersDb, "Travelers Database", "PostgreSQL", "Stores user data, posts, comments, likes, subscriptions, and location data.")
+    ContainerDb(mediaDb, "Media Database", "PostgreSQL", "Stores media metadata and URLs.")
+    ContainerDb(feedDb, "Feed Database", "Redis", "Cache for feed data.")
+    
+    ContainerQueue(messageQueue, "Message Queue", "Kafka", "Provides asynchronous communication between services.")
+}
+
+System_Ext(objectStorage, "Media Storage", "Storage for media.")
+System_Ext(mediaCache, "CDN for Media Data", "Media files cache which is located close to user.")
+
+Rel(user, webApp, "Uses")
+Rel(user, mobileApp, "Uses")
+
+Rel(webApp, loadBalancer, "Create and read post, comments and likes it, reads feed, searchs popular locations, subscribes to other travelers", "HTTPS (REST)")
+Rel(mobileApp, loadBalancer, "Create and read post, comments and likes it, reads feed, searchs popular locations, subscribes to other travelers", "HTTPS (REST)")
+Rel(loadBalancer, apiGateway, "Forwards requests", "HTTPS (REST)")
+
+Rel(apiGateway, travelersApi, "Forwards common requests", "HTTPS (REST)")
+Rel(apiGateway, feedService, "Forwards feed requests", "HTTPS (REST)")
+
+Rel(webApp, objectStorage, "Uploads media files", "HTTPS (REST)")
+Rel(mobileApp, objectStorage, "Uploads media files", "HTTPS (REST)")
+
+Rel(webApp, mediaCache, "Downloads media files", "HTTPS (REST)")
+Rel(mobileApp, mediaCache, "Downloads media files", "HTTPS (REST)")
+Rel(mediaCache, objectStorage, "Fetches media files if not in cache")
+
+Rel(travelersApi, mediaService, "Requests presigned URLs for created post", "gRPC")
+Rel(mediaService, objectStorage, "Requests presigned URLs for created post", "AWS SDK")
+Rel(mediaService, messageQueue, "Notifies Travaler API that media files are ready for created post", "Kafka API")
+Rel(mediaService, mediaDb, "Reads/writes media metadata and URLs", "PostgreSQL API")
+
+Rel(travelersApi, travelersDb, "Reads/writes traveler posts, comments, likes, subscriptions, and location data", "PostgreSQL API")
+Rel(travelersApi, messageQueue, "Notifies Feed Service that created post published, comment and like added, subscription created and receives notification from Media Service", "Kafka API")
+
+Rel(feedService, feedDb, "Reads/writes feed data", "Redis API")
+Rel(feedService, messageQueue, "Receives notification from Traveler API about created post published", "Kafka API")
+
+@enduml 
