@@ -1,0 +1,17 @@
+@startuml C4_Context_Social_Network_for_Travelers
+
+!NEW_C4_STYLE=1
+
+!include  https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+Person(user, "Traveler", $sprite="person")
+System(socialNetwork, "Social Network for Travelers", "A platform that allows travelers to create posts, comment on them, search for interesting locations, and subscribe to updates from other travelers.")
+System_Ext(objectStorage, "Media Storage", "Storage for media.")
+System_Ext(cache, "CDN for Media Data", "Media files cache which is located close to user.")
+
+Rel(user, socialNetwork, "Creates and reads post, comments post, likes post, searches popular locations, subscribes to other travelers, reads feeds")
+Rel(socialNetwork, objectStorage, "Uploads media files")
+Rel(socialNetwork, cache, "Downloads media files")
+Rel(cache, objectStorage, "Fetches media files if not in cache")
+
+@enduml 
